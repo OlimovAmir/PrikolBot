@@ -13,6 +13,7 @@ var telegram = new PRBot(option =>
     option.BotId = 0;
 });
 
+await telegram.Start();
 
 telegram.OnLogCommon += Telegram_OnLogCommon;
 telegram.OnLogError += Telegram_OnLogError;
