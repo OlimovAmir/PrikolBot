@@ -4,6 +4,7 @@ using System.Data;
 
 const string EXIT_COMMAND = "exit";
 
+// конфигурация бота
 var telegram = new PRBot(option =>
 {
     option.Token = "6596108797:AAEYt947sJtftpQeiFI-QuVEM8UEatzB6vM";
@@ -13,6 +14,7 @@ var telegram = new PRBot(option =>
     option.BotId = 0;
 });
 
+// команда запуск бота
 await telegram.Start();
 
 telegram.OnLogCommon += Telegram_OnLogCommon;
@@ -36,7 +38,7 @@ void Telegram_OnLogCommon(string msg, PRBot.TelegramEvents typeEnent, ConsoleCol
 }
 
 
-
+// чтобы программа не закрылась
 while (true)
 {
     var result = Console.ReadLine();
@@ -45,3 +47,6 @@ while (true)
         Environment.Exit(0);
     }
 }
+
+// Создание команда обработчика
+
