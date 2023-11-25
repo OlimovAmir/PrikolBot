@@ -1,11 +1,8 @@
 ﻿using PRTelegramBot.Attributes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.ReplyMarkups;
 
 namespace PrikolBot
 {
@@ -14,14 +11,31 @@ namespace PrikolBot
         [ReplyMenuHandler(true, "Привет", "Салом", "hi", "Салам")]
         public static async Task Excample(ITelegramBotClient botClient, Update update)
         {
-            // Получаем имя отправителя
+            // Получаем идентификатор чата
+            long chatId = update.Message.Chat.Id;
             string senderName = GetFirstName(update.Message.From);
+            // Формируем сообщение с приветствием
+            var greetingText = $"Салам алейкум, как я могу помочь вам сегодня? {senderName}";
+
+            // Создаем объект ReplyKeyboardMarkup для клавиатуры
+            var replyKeyboardMarkup = new ReplyKeyboardMarkup(new[]
+               {
+                    new KeyboardButton[] { "Как дела?", "Пока" },
+                        // Дополнительные кнопки могут быть добавлены по аналогии
+                });
+            replyKeyboardMarkup.ResizeKeyboard = true;
+
+            // Отправляем сообщение с клавиатурой
+            await botClient.SendTextMessageAsync(chatId, greetingText, replyMarkup: replyKeyboardMarkup);
+
+            // Получаем имя отправителя
+            //string senderName = GetFirstName(update.Message.From);
 
             // Формируем сообщение с именем отправителя
-            var message = $"Салам алейкум, {senderName}";
+            ///var personalMessage = $"Салам алейкум, {senderName}";
 
-            // Отправляем сообщение
-            var senMessage = await PRTelegramBot.Helpers.Message.Send(botClient,update, message);
+            // Отправляем персональное сообщение
+            //var senMessage = await PRTelegramBot.Helpers.Message.Send(botClient, update, personalMessage);
         }
 
         [ReplyMenuHandler(true, "Как дела?", "Как дела", "Как ты?", "Как ты")]
@@ -47,7 +61,7 @@ namespace PrikolBot
             var message = $"До свидания, {senderName}! Если у вас есть еще вопросы, не стесняйтесь задавать.";
 
             // Отправляем прощание
-            var senMessage = await PRTelegramBot.Helpers.Message.Send(botClient, update, message);
+            var farewellMessage = await PRTelegramBot.Helpers.Message.Send(botClient, update, message);
         }
 
         // Метод для получения имени отправителя
