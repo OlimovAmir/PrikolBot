@@ -11,10 +11,10 @@ namespace PrikolBot
 {
     public class Commands
     {
-        [ReplyMenuHandler(true, "Привет")]
+        [ReplyMenuHandler(true, "Привет", "Салом", "hi", "Салам")]
         public static async Task Excample(ITelegramBotClient botClient, Update update)
         {
-            var message = "Корба беваакт нашуд ми";
+            var message = "Салам алейкум ";
             var senMessage = await PRTelegramBot.Helpers.Message.Send(botClient,update, message);
         }
     }
