@@ -3,68 +3,66 @@ using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
+using PRTelegramBot.Attributes;
 
 namespace PrikolBot
 {
     public class Commands
+
     {
+        [AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = true)]
+        public sealed class CallbackQueryHandlerAttribute : Attribute
+        {
+            public string Command { get; }
+
+            public CallbackQueryHandlerAttribute(string command)
+            {
+                Command = command;
+            }
+        }
         [ReplyMenuHandler(true, "Привет", "Салом", "hi", "Салам")]
         public static async Task Excample(ITelegramBotClient botClient, Update update)
         {
-            // Получаем идентификатор чата
             long chatId = update.Message.Chat.Id;
             string senderName = GetFirstName(update.Message.From);
-            // Формируем сообщение с приветствием
-            var greetingText = $"Салам алейкум, как я могу помочь вам сегодня? {senderName}";
 
-            // Создаем объект ReplyKeyboardMarkup для клавиатуры
-            var replyKeyboardMarkup = new ReplyKeyboardMarkup(new[]
-               {
-                    new KeyboardButton[] { "Как дела?", "Пока" },
-                        // Дополнительные кнопки могут быть добавлены по аналогии
-                });
-            replyKeyboardMarkup.ResizeKeyboard = true;
+            var greetingText = $"Салам алейкум, как я могу помочь вам сегодня, {senderName}?";
 
-            // Отправляем сообщение с клавиатурой
-            await botClient.SendTextMessageAsync(chatId, greetingText, replyMarkup: replyKeyboardMarkup);
+            var inlineKeyboard = new InlineKeyboardMarkup(new[]
+            {
+            new[]
+            {
+                InlineKeyboardButton.WithCallbackData("Как дела?", "how_are_you"),
+                InlineKeyboardButton.WithCallbackData("Пока", "goodbye"),
+            },
+            new[]
+            {
+                InlineKeyboardButton.WithCallbackData("Контакты", "contacts"),
+                InlineKeyboardButton.WithCallbackData("Разделы", "sections"),
+            },
+        });
 
-            // Получаем имя отправителя
-            //string senderName = GetFirstName(update.Message.From);
-
-            // Формируем сообщение с именем отправителя
-            ///var personalMessage = $"Салам алейкум, {senderName}";
-
-            // Отправляем персональное сообщение
-            //var senMessage = await PRTelegramBot.Helpers.Message.Send(botClient, update, personalMessage);
+            var message = await botClient.SendTextMessageAsync(chatId, greetingText, replyMarkup: inlineKeyboard);
         }
 
-        [ReplyMenuHandler(true, "Как дела?", "Как дела", "Как ты?", "Как ты")]
-        public static async Task HowAreYou(ITelegramBotClient botClient, Update update)
+        [CallbackQueryHandler("how_are_you")]
+        public static async Task HowAreYouCallback(ITelegramBotClient botClient, CallbackQuery callbackQuery)
         {
-            // Получаем имя отправителя
-            string senderName = GetFirstName(update.Message.From);
-
-            // Формируем сообщение с вопросом о делах
+            string senderName = GetFirstName(callbackQuery.From);
             var message = $"Нормально, у тебя как, {senderName}?";
-
-            // Отправляем вопрос
-            var senMessage = await PRTelegramBot.Helpers.Message.Send(botClient, update, message);
+            await botClient.SendTextMessageAsync(callbackQuery.Message.Chat.Id, message);
         }
 
-        [ReplyMenuHandler(true, "Пока", "До свидания", "Goodbye")]
-        public static async Task Goodbye(ITelegramBotClient botClient, Update update)
+        [CallbackQueryHandler("goodbye")]
+        public static async Task GoodbyeCallback(ITelegramBotClient botClient, CallbackQuery callbackQuery)
         {
-            // Получаем имя отправителя
-            string senderName = GetFirstName(update.Message.From);
-
-            // Формируем сообщение с прощанием
+            string senderName = GetFirstName(callbackQuery.From);
             var message = $"До свидания, {senderName}! Если у вас есть еще вопросы, не стесняйтесь задавать.";
-
-            // Отправляем прощание
-            var farewellMessage = await PRTelegramBot.Helpers.Message.Send(botClient, update, message);
+            await botClient.SendTextMessageAsync(callbackQuery.Message.Chat.Id, message);
         }
 
-        // Метод для получения имени отправителя
+        // Добавьте обработчики для "contacts" и "sections" по аналогии
+
         private static string GetFirstName(User user)
         {
             return user.FirstName;
